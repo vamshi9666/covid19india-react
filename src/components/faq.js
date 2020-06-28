@@ -1,5 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import axios from 'axios';
+import {Helmet} from 'react-helmet';
+
+// TODO(slightlyoff): factor out common JSON parsing & caching of this file
+const DATA_URL = 'https://api.covid19india.org/website_data.json';
 
 function FAQ(props) {
   const [faq, setFaq] = useState([]);
@@ -8,11 +11,17 @@ function FAQ(props) {
     getFAQs();
   }, []);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const getFAQs = () => {
-    axios
-      .get('https://api.covid19india.org/website_data.json')
+    fetch(DATA_URL)
       .then((response) => {
-        setFaq(response.data['faq']);
+        return response.json();
+      })
+      .then((data) => {
+        setFaq(data.faq);
       })
       .catch((error) => {
         console.log(error);
@@ -21,6 +30,13 @@ function FAQ(props) {
 
   return (
     <div className="FAQ">
+      <Helmet>
+        <title>FAQ - covid19india.org</title>
+        <meta
+          name="title"
+          content="Coronavirus Outbreak in India: Latest Map and Case Count"
+        />
+      </Helmet>
       {faq.map((faq, index) => {
         return (
           <div
